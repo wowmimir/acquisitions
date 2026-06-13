@@ -30,6 +30,7 @@ export default [
       'no-var': 'error',
       'object-shorthand': 'error',
       'prefer-arrow-callback': 'error',
+      'preserve-caught-error': 'off',
     },
   },
   {
