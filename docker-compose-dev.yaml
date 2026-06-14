@@ -1,0 +1,40 @@
+services:
+  neon-local:
+    image: neondatabase/neon_local:latest
+    container_name: acquisitions-neon-local
+    ports:
+      - '5432:5432'
+    env_file:
+      - .env.development
+    networks:
+      - acquisitions-net-dev
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-h', 'localhost', '-p', '5432', '-U', 'neon']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      target: development
+    container_name: acquisitions-dev
+    ports:
+      - '${PORT:-3000}:3000'
+    env_file:
+      - .env.development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./logs:/app/logs
+    depends_on:
+      neon-local:
+        condition: service_healthy
+    networks:
+      - acquisitions-net-dev
+    restart: unless-stopped
+
+networks:
+  acquisitions-net-dev:
+    driver: bridge
